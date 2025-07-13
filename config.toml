@@ -1,0 +1,3 @@
+network= "bitcoin"
+port = 3001
+xprv = "wpkh([e650a2a0/84'/827167'/0']tprv8gbcURHVWT5Ghp7zcQExBDXcTL8aSBDjgLyxq1ovtMKbPhx3DD1fo2LjNsdXA2Z27u45P9T72dNHfZGBWrWSDASjdA7qm8zV8bUCNGSAD6m/0/*)"
