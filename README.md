@@ -52,9 +52,9 @@ network = "bitcoin"  # Options: "bitcoin", "testnet", "regtest"
 # Service port
 port = 3001
 
-# Extended private key for transaction signing
+# Recover phrase for transaction signing
 # WARNING: Keep this secure and never commit to version control
-xprv = "your_extended_private_key_here"
+phrase = "your_phrase_here"
 ```
 
 ### Configuration Parameters
@@ -63,7 +63,7 @@ xprv = "your_extended_private_key_here"
 |-----------|------|---------|-------------|
 | `network` | String | `"bitcoin"` | Bitcoin network type (bitcoin/testnet/regtest) |
 | `port` | Integer | `3001` | HTTP server port |
-| `xprv` | String | - | Extended private key for signing transactions |
+| `phrase` | String | - | Recover phrase key for signing transactions |
 
 ## Key Generation
 
@@ -92,30 +92,6 @@ This command outputs:
 - Fingerprint
 - Mnemonic phrase (12 words)
 - Master private key (xprv)
-
-### Step 2: Derive Extended Private Key
-```bash
-# For mainnet
-bdk-cli -n bitcoin key derive -x "xprv_from_step_1" -p "84h/827166h/0h"
-
-# For testnet
-bdk-cli -n testnet key derive -x "xprv_from_step_1" -p "84h/827167h/0h"
-```
-
-### Step 3: Update Configuration
-Copy the generated `xprv` to your `config.toml` file.
-
-**Important:** Before using the xprv, you need to add `/0` before the final `/*` in the key path:
-
-```
-# Original output from Step 2:
-[f643cd61/84'/827166'/0']xprv9yeSw9zd2GiZgErj9uMrWT963TAfpm2oZQmHC3Hwyxsq8s6SxkiQHAE5z4WKAXyQxYaVPTkK96ijVT81LhhfEn5iNnc5QzLACJSM8Wr13ER/*
-
-# Modified for config.toml:
-[f643cd61/84'/827166'/0']xprv9yeSw9zd2GiZgErj9uMrWT963TAfpm2oZQmHC3Hwyxsq8s6SxkiQHAE5z4WKAXyQxYaVPTkK96ijVT81LhhfEn5iNnc5QzLACJSM8Wr13ER/0/*
-```
-
-This modification ensures the correct derivation path for receiving addresses (`/0/*`) as specified in the RGB-44 standard.
 
 ## Usage
 
@@ -164,10 +140,10 @@ This URL will be used by the transcription service to communicate with your sign
 
 ## Security
 
-### 🔒 Private Key Management
+### 🔒 Recover phrase Management
 
-- **Never commit private keys to version control**
-- Store `xprv` in secure environment variables or key management systems
+- **Never commit phrase to version control**
+- Store `phrase` in secure environment variables or key management systems
 - Use hardware security modules (HSMs) for production deployments
 - Regularly rotate keys and monitor access
 
@@ -181,7 +157,7 @@ This URL will be used by the transcription service to communicate with your sign
 
 ### 🚨 Important Security Notes
 
-> **⚠️ WARNING:** This service handles private keys and should only be deployed in secure, controlled environments. Never expose this service directly to the public internet without proper security measures.
+> **⚠️ WARNING:** This service handles phrase and should only be deployed in secure, controlled environments. Never expose this service directly to the public internet without proper security measures.
 
 ## Architecture
 
