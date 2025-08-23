@@ -2,8 +2,13 @@
 use std::{str::FromStr, sync::Arc};
 
 use axum::{extract::State, routing::post, Json};
-use bdk_wallet::{SignOptions, Wallet};
+use bdk_wallet::{SignOptions, Wallet,};
+use bdk_wallet::keys::{DescriptorKey, DerivableKey};
+use bdk_wallet::descriptor::Segwitv0;
+use bdk_wallet::bip39::{Mnemonic, Language};
 use bitcoin::Psbt;
+use bitcoin::bip32::ChildNumber::{Normal, Hardened};
+use bitcoin::bip32::DerivationPath;
 use serde::{Deserialize, Serialize, Serializer};
 
 pub struct AppState {
@@ -14,13 +19,31 @@ pub struct AppState {
 pub struct Config {
     pub port: u16,
     pub network: bitcoin::Network,
-    pub xprv: String,
+    pub phase: String,
 }
+
+pub static MAINNET_DERIVE_PATH: std::sync::LazyLock<DerivationPath> =
+    std::sync::LazyLock::new(|| {
+        vec![
+            Hardened { index: 84 },
+            Hardened { index: 827166 },
+            Hardened { index: 0 },
+            Normal { index: 0 },
+        ]
+        .into()
+    });
 
 impl AppState {
     pub async fn init(config: &Config) -> Result<Self, String> {
+        let mnemonic = Mnemonic::parse_in(Language::English, config.phase.clone()).expect("parse Mnemonic failed");
 
-        let wallet = bdk_wallet::Wallet::create_single(config.xprv.clone())
+        let derive_key: DescriptorKey<Segwitv0> = mnemonic
+            .clone()
+            .into_descriptor_key(None, MAINNET_DERIVE_PATH.to_owned())
+            .unwrap();
+        use bdk_wallet::miniscript;
+        let desc = bdk_wallet::descriptor!(wpkh(derive_key)).unwrap();
+        let wallet = bdk_wallet::Wallet::create_single(desc)
             .network(config.network)
             .create_wallet_no_persist()
             .expect("create wallet");
@@ -29,6 +52,8 @@ impl AppState {
 
         Ok(app)
     }
+
+   
 }
 
 #[tokio::main]
